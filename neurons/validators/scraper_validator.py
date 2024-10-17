@@ -187,6 +187,8 @@ class ScraperValidator:
             "task_types": [task.task_type for task in tasks],
         }
         start_time = time.time()
+        bt.logging.debug(f"@@2 Event created: {event}")
+        bt.logging.debug(f"@@2 Event start time: {start_time}")
 
         # Get random id on that step
         uids = await self.neuron.get_uids(
@@ -194,6 +196,7 @@ class ScraperValidator:
             is_only_allowed_miner=is_only_allowed_miner,
             specified_uids=specified_uids,
         )
+        bt.logging.debug(f"@@2 UIDs selected: {uids}")
 
         start_date = date_filter.start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
         end_date = date_filter.end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -224,6 +227,9 @@ class ScraperValidator:
             self.neuron.dendrite2,
             self.neuron.dendrite3,
         ]
+        bt.logging.debug(f"@@2 Axon groups: {axon_groups}")
+        bt.logging.debug(f"@@2 Synapse groups: {synapse_groups}")
+        bt.logging.debug(f"@@2 Dendrites selected: {dendrites}")
 
         async_responses = []
 
@@ -241,6 +247,8 @@ class ScraperValidator:
                     for axon, synapse in zip(axon_group, synapse_group)
                 ]
             )
+            bt.logging.debug(f"@@2 Async responses after group {dendrite}: {async_responses}")
+
 
         return async_responses, uids, event, start_time
 
@@ -480,17 +488,26 @@ class ScraperValidator:
                 google_date_filter=self.date_filter,
                 timeout=max_execution_time,
             )
+            bt.logging.debug(
+                f"@@ Task executed with UIDs: {uids}, Event: {event}, Start time: {start_time}"
+            )
+
 
             final_synapses = await collect_final_synapses(
                 async_responses, uids, start_time, max_execution_time
             )
 
+            bt.logging.debug(f"@@ Collected final synapses: {final_synapses}")
+
             # Store final synapses for scoring later
             self.synthetic_history.append(
                 (event, tasks, final_synapses, uids, start_time)
             )
+            bt.logging.debug("@@ Stored synthetic history for future scoring.")
 
             await self.score_random_synthetic_query()
+            bt.logging.debug("@@ Completed scoring synthetic query.")
+
         except Exception as e:
             bt.logging.error(f"Error in query_and_score: {e}")
             raise e

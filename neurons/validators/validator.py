@@ -293,38 +293,42 @@ class Neuron(AbstractNeuron):
             await asyncio.sleep(100)
 
     async def run_synthetic_queries(self, strategy=QUERY_MINERS.RANDOM):
-        bt.logging.info(f"Starting run_synthetic_queries with strategy={strategy}")
+        bt.logging.info(f"0. Starting run_synthetic_queries with strategy={strategy}")
         total_start_time = time.time()
         try:
 
             async def run_forward():
                 start_time = time.time()
                 bt.logging.info(
-                    f"Running step forward for query_synapse, Step: {self.step}"
+                    f"1.1 Running step forward for query_synapse, Step: {self.step}"
                 )
                 coroutines = [self.query_synapse(strategy) for _ in range(1)]
+
+                bt.logging.info(
+                    f"coroutines: {coroutines}"
+                )
                 await asyncio.gather(*coroutines)
                 end_time = time.time()
                 bt.logging.info(
-                    f"Completed gathering coroutines for query_synapse in {end_time - start_time:.2f} seconds"
+                    f"1.2 Completed gathering coroutines for query_synapse in {end_time - start_time:.2f} seconds"
                 )
 
-            bt.logging.info("Running coroutines with run_until_complete")
+            bt.logging.info("1. Running coroutines with run_until_complete")
             self.loop.run_until_complete(run_forward())
-            bt.logging.info("Completed running coroutines with run_until_complete")
+            bt.logging.info("2. Completed running coroutines with run_until_complete")
 
             sync_start_time = time.time()
-            bt.logging.info("Calling sync metagraph method")
+            bt.logging.info("3. Calling sync metagraph method")
             await self.sync_metagraph()
-            bt.logging.info("Completed calling sync metagraph method")
+            bt.logging.info("4. Completed calling sync metagraph method")
 
             sync_end_time = time.time()
             bt.logging.info(
-                f"Sync metagraph method execution time: {sync_end_time - sync_start_time:.2f} seconds"
+                f"5. Sync metagraph method execution time: {sync_end_time - sync_start_time:.2f} seconds"
             )
 
             self.step += 1
-            bt.logging.info(f"Incremented step to {self.step}")
+            bt.logging.info(f"6. Incremented step to {self.step}")
         except Exception as err:
             bt.logging.error("Error in run_synthetic_queries", str(err))
             bt.logging.debug(print_exception(type(err), err, err.__traceback__))
@@ -446,6 +450,9 @@ class Neuron(AbstractNeuron):
         try:
 
             async def run_with_interval(interval, strategy):
+                
+                bt.logging.info(f" create_task->run_with_interval = [{interval}, {strategy}]")
+
                 query_count = 0  # Initialize query count
                 while True:
                     try:
@@ -455,6 +462,8 @@ class Neuron(AbstractNeuron):
                             )
                             await asyncio.sleep(10)
                             continue
+
+                        bt.logging.info(f" self.available_uids = [{self.available_uids}] ")
                         self.loop.create_task(self.run_synthetic_queries(strategy))
 
                         await asyncio.sleep(
@@ -477,6 +486,8 @@ class Neuron(AbstractNeuron):
                         bt.logging.error(f"Error during task execution: {e}")
                         await asyncio.sleep(interval)  # Wait before retrying
 
+
+            bt.logging.info(f" self.config.neuron.run_random_miner_syn_qs_interval = [{self.config.neuron.run_random_miner_syn_qs_interval}]")
             if self.config.neuron.run_random_miner_syn_qs_interval > 0:
                 self.loop.create_task(
                     run_with_interval(
@@ -485,6 +496,7 @@ class Neuron(AbstractNeuron):
                     )
                 )
 
+            bt.logging.info(f" self.config.neuron.run_all_miner_syn_qs_interval = [{self.config.neuron.run_all_miner_syn_qs_interval}]")
             if self.config.neuron.run_all_miner_syn_qs_interval > 0:
                 self.loop.create_task(
                     run_with_interval(
