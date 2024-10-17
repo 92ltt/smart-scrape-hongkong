@@ -8,7 +8,7 @@ import json
 import asyncio
 import time
 import random
-
+import pprint
 
 async def collect_response(response: ScraperStreamingSynapse, uid, start_time):
     async for chunk in response:
@@ -66,7 +66,8 @@ async def collect_final_synapses(
             group_final_synapses = await collect_responses(
                 async_responses_group, group_uids, start_time
             )
-            bt.logging.debug(f"@@1 Collected synapses for group {group_index}: {group_final_synapses}")
+            bt.logging.debug(f"@@1 Collected synapses for group {group_index}:")
+            pprint.pprint(group_final_synapses)
 
             for i, synapse in enumerate(group_final_synapses):
                 final_synapses[group_index * group_size + i] = synapse
