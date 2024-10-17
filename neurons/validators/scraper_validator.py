@@ -497,7 +497,7 @@ class ScraperValidator:
                 async_responses, uids, start_time, max_execution_time
             )
 
-            bt.logging.debug(f"@@ Collected final synapses: {final_synapses}")
+            # bt.logging.debug(f"@@ Collected final synapses: {final_synapses}")
 
             # Store final synapses for scoring later
             self.synthetic_history.append(

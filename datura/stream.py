@@ -18,11 +18,11 @@ async def collect_response(response: ScraperStreamingSynapse, uid, start_time):
             process_time = chunk.dendrite.process_time
             if process_time is not None:
                 print(
-                    f"Miner uid {uid} finished with final synapse after {duration:.2f}s from start time. Dendrite process time: {process_time:.2f}s"
+                    f"@@3 Miner uid {uid} finished with final synapse after {duration:.2f}s from start time. Dendrite process time: {process_time:.2f}s"
                 )
             else:
                 print(
-                    f"Miner uid {uid} finished with final synapse after {duration:.2f}s from start time. Dendrite process time is None"
+                    f"@@3 Miner uid {uid} finished with final synapse after {duration:.2f}s from start time. Dendrite process time is None"
                 )
             return chunk
     return None
@@ -76,7 +76,7 @@ async def collect_final_synapses(
         final_synapses = await collect_responses(async_responses, uids, start_time)
         bt.logging.debug(f"@@1 Collected synapses for all async_responses: {final_synapses}")
 
-    bt.logging.debug(f"@@1 Returning final synapses: {final_synapses}")
+    bt.logging.debug(f"@@1 Returning final synapses done")
     return final_synapses
 
 
