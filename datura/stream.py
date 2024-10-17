@@ -75,7 +75,9 @@ async def collect_final_synapses(
         # Process all async_responses in parallel
         bt.logging.debug(f"@@1 Max execution time is greater than 60, processing all async_responses in parallel.")
         final_synapses = await collect_responses(async_responses, uids, start_time)
-        bt.logging.debug(f"@@1 Collected synapses for all async_responses: {final_synapses}")
+        bt.logging.debug(f"@@1 Collected synapses for all async_responses:")
+        print('@@1: final_synapses=')
+        pprint.pprint(final_synapses)
 
     bt.logging.debug(f"@@1 Returning final synapses done")
     return final_synapses
